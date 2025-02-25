@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:orientation="vertical"
+    tools:context=".HomeActivity">
+
+    <!-- User Greeting and Profile -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/profile_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/profile_placeholder"
+            android:scaleType="centerCrop"
+            android:background="@drawable/circle_background"/>
+
+        <TextView
+            android:id="@+id/user_greeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/profile_image"
+            android:layout_marginStart="10dp"
+            android:text="Hello, Denzel"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:textStyle="bold"/>
+
+        <ImageView
+            android:id="@+id/notification_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/ic_notification"
+            app:tint="@color/white" />
+    </RelativeLayout>
+
+    <!-- Search Bar -->
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:queryHint="Search for items, brands..."
+        android:background="@drawable/search_bar_background"
+        android:iconifiedByDefault="false"
+        android:padding="8dp"/>
+
+    <!-- Categories -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_coat"
+                style="@style/CategoryButton"
+                android:text="@string/coat"/>
+
+            <Button
+                android:id="@+id/btn_cap"
+                style="@style/CategoryButton"
+                android:text="@string/cap"/>
+
+            <Button
+                android:id="@+id/btn_tshirt"
+                style="@style/CategoryButton"
+                android:text="@string/t_shirt"/>
+
+            <Button
+                android:id="@+id/btn_sweater"
+                style="@style/CategoryButton"
+                android:text="@string/sweater"/>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Product List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_products"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="10dp"
+        android:scrollbars="vertical"/>
+
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/black"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"
+        app:menu="@menu/bottom_nav_menu"/>
+
+
+</LinearLayout>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "266686351102",
+    "project_id": "lighthouse-fba4f",
+    "storage_bucket": "lighthouse-fba4f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:266686351102:android:3aa8eb644e0cab385a07af",
+        "android_client_info": {
+          "package_name": "com.example.lighthouse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDA__ElwW68w18o18Q99q0WmPppt5rEHDE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

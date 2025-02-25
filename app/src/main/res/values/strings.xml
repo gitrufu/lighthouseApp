@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">lighthouse</string>
+    <string name="coat">Coat</string>
+    <string name="cap">Cap</string>
+    <string name="t_shirt">T-shirt</string>
+    <string name="sweater">Sweater</string>
+    <string name="help_and_support">Help and Support</string>
+</resources>
