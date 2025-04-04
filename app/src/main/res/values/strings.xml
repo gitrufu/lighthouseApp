@@ -1,5 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">lighthouse</string>
+    <string name="app_name">Lighthouse</string>
+    <string name="price_format">$%.2f</string>
     <string name="coat">Coat</string>
     <string name="cap">Cap</string>
     <string name="t_shirt">T-shirt</string>

@@ -2,7 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Add Internet Permission -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
+        android:name=".LighthouseApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -12,17 +17,40 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Lighthouse"
         tools:targetApi="31">
+        
         <activity
-            android:name=".HomeActivity"
+            android:name=".LoginActivity"
             android:exported="true"
-            android:label="Lighthouse"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:theme="@style/Theme.Lighthouse">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".RegisterActivity"
+            android:theme="@style/Theme.Lighthouse"/>
+
+        <activity
+            android:name=".HomeActivity"
+            android:theme="@style/Theme.Lighthouse"/>
+
+        <activity
+            android:name=".CategoriesActivity"
+            android:theme="@style/Theme.Lighthouse"/>
+
+        <activity
+            android:name=".CartActivity"
+            android:theme="@style/Theme.Lighthouse"/>
+
+        <activity
+            android:name=".SettingsActivity"
+            android:theme="@style/Theme.Lighthouse"/>
+
+        <activity
+            android:name=".ProductDetailActivity"
+            android:theme="@style/Theme.Lighthouse" />
     </application>
 
 </manifest>

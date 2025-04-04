@@ -1,7 +1,12 @@
-package com.example.lighthouse.models
+package com.example.lighthouse
 
 data class Product(
-    val name: String = "",
-    val price: Double = 0.0,
-    val imageUrl: String = ""
-)
+    val name: String,
+    val price: Double,
+    val imageResource: Int? = null,
+    val imageUrl: String? = null
+) {
+    fun getImageSource(): Any? {
+        return imageResource ?: imageUrl
+    }
+} 
