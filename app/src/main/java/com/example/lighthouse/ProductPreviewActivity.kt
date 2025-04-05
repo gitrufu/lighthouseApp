@@ -3,7 +3,6 @@ package com.example.lighthouse
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +13,6 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import android.view.View
 import androidx.core.content.ContextCompat
 import com.example.lighthouse.database.CartRepository
 
