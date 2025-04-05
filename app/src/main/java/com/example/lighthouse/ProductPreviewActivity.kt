@@ -112,7 +112,7 @@ class ProductPreviewActivity : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "Error loading product: ${e.message}")
-                Toast.makeText(this, "Error loading product", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.error_loading_product, Toast.LENGTH_SHORT).show()
                 finish()
             }
     }
@@ -148,7 +148,7 @@ class ProductPreviewActivity : AppCompatActivity() {
 
     private fun setupAddToCartButton(productId: String) {
         addToCartButton.apply {
-            text = "Add to Cart"
+            setText(R.string.add_to_cart)
             isEnabled = true
             backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black))
             setTextColor(ContextCompat.getColor(context, R.color.white))
@@ -169,20 +169,20 @@ class ProductPreviewActivity : AppCompatActivity() {
         Log.d(TAG, "Selected options - Size: $selectedSize, Color: $selectedColor")
 
         if (selectedSize == null || selectedColor == null) {
-            Toast.makeText(this, "Please select size and color", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.select_size_color, Toast.LENGTH_SHORT).show()
             addToCartButton.isEnabled = true
             return
         }
 
         val userId = auth.currentUser?.uid
         if (userId == null) {
-            Toast.makeText(this, "Please sign in to add items to cart", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.sign_in_to_add, Toast.LENGTH_SHORT).show()
             addToCartButton.isEnabled = true
             return
         }
 
         // Show loading state
-        addToCartButton.text = "Adding to Cart..."
+        addToCartButton.setText(R.string.adding_to_cart)
 
         Log.d(TAG, "Fetching product details from Firestore for ID: $productId")
         // Get product details from Firestore

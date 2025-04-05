@@ -62,7 +62,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
-                        android:text="Size"
+                        android:text="@string/size"
                         android:textColor="@color/black"
                         android:textStyle="bold" />
 
@@ -77,7 +77,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="Color"
+                        android:text="@string/color"
                         android:textColor="@color/black"
                         android:textStyle="bold" />
 
@@ -105,7 +105,7 @@
         android:layout_margin="16dp"
         android:backgroundTint="@color/black"
         android:padding="16dp"
-        android:text="Add to Cart"
+        android:text="@string/add_to_cart"
         android:textColor="@color/white"
         app:cornerRadius="8dp" />
 
