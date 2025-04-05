@@ -88,23 +88,6 @@
                         android:layout_marginTop="8dp"
                         app:singleSelection="true" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Quantity"
-                        android:textColor="@color/black"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.slider.Slider
-                        android:id="@+id/quantity_slider"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        app:labelBehavior="floating"
-                        app:thumbColor="@color/black"
-                        app:trackColorActive="@color/black"
-                        app:trackColorInactive="@color/gray_300" />
 
                 </LinearLayout>
 

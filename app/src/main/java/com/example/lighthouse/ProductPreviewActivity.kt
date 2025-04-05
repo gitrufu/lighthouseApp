@@ -1,5 +1,6 @@
 package com.example.lighthouse
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
@@ -13,9 +14,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.android.material.slider.Slider
-import android.content.Context
-import android.content.res.ColorStateList
+import android.view.View
 import androidx.core.content.ContextCompat
 import com.example.lighthouse.database.CartRepository
 
@@ -30,7 +29,7 @@ class ProductPreviewActivity : AppCompatActivity() {
     private lateinit var productDescriptionText: TextView
     private lateinit var sizeChipGroup: ChipGroup
     private lateinit var colorChipGroup: ChipGroup
-    private lateinit var quantitySlider: Slider
+
     private lateinit var addToCartButton: MaterialButton
     private lateinit var db: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
@@ -50,8 +49,10 @@ class ProductPreviewActivity : AppCompatActivity() {
         productDescriptionText = findViewById(R.id.product_description)
         sizeChipGroup = findViewById(R.id.size_chip_group)
         colorChipGroup = findViewById(R.id.color_chip_group)
-        quantitySlider = findViewById(R.id.quantity_slider)
         addToCartButton = findViewById(R.id.add_to_cart_button)
+        // Initialize add to cart button
+        addToCartButton.text = "Add to Cart"
+        addToCartButton.isEnabled = true
 
         // Get product details from intent
         val productId = intent.getStringExtra("product_id")
@@ -65,11 +66,9 @@ class ProductPreviewActivity : AppCompatActivity() {
         // Load full product details
         loadProductDetails(productId)
 
-        // Set up quantity slider with monochromatic theme
-        setupQuantitySlider()
-
         // Set up add to cart button with monochromatic theme
         setupAddToCartButton(productId)
+
     }
 
     private fun loadProductDetails(productId: String) {
@@ -107,6 +106,9 @@ class ProductPreviewActivity : AppCompatActivity() {
                 // Set up size and color selection
                 setupSizeSelection(sizes)
                 setupColorSelection(colors)
+
+                // Set up add to cart button after loading product details
+                setupAddToCartButton(productId)
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "Error loading product: ${e.message}")
@@ -115,17 +117,7 @@ class ProductPreviewActivity : AppCompatActivity() {
             }
     }
 
-    private fun setupQuantitySlider() {
-        quantitySlider.apply {
-            value = 1f
-            valueFrom = 1f
-            valueTo = 10f
-            stepSize = 1f
-            trackActiveTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black))
-            trackInactiveTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.gray_300))
-            thumbTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black))
-        }
-    }
+
 
     private fun setupSizeSelection(sizes: List<String>) {
         sizeChipGroup.removeAllViews()
@@ -156,6 +148,8 @@ class ProductPreviewActivity : AppCompatActivity() {
 
     private fun setupAddToCartButton(productId: String) {
         addToCartButton.apply {
+            text = "Add to Cart"
+            isEnabled = true
             backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black))
             setTextColor(ContextCompat.getColor(context, R.color.white))
             setOnClickListener {
@@ -165,12 +159,14 @@ class ProductPreviewActivity : AppCompatActivity() {
     }
 
     private fun addToCart(productId: String) {
+        Log.d(TAG, "Starting addToCart for product: $productId")
         // Disable add to cart button to prevent multiple clicks
         addToCartButton.isEnabled = false
 
         val selectedSize = findViewById<Chip>(sizeChipGroup.checkedChipId)?.text?.toString()
         val selectedColor = findViewById<Chip>(colorChipGroup.checkedChipId)?.text?.toString()
-        val quantity = quantitySlider.value.toInt()
+        
+        Log.d(TAG, "Selected options - Size: $selectedSize, Color: $selectedColor")
 
         if (selectedSize == null || selectedColor == null) {
             Toast.makeText(this, "Please select size and color", Toast.LENGTH_SHORT).show()
@@ -188,26 +184,31 @@ class ProductPreviewActivity : AppCompatActivity() {
         // Show loading state
         addToCartButton.text = "Adding to Cart..."
 
+        Log.d(TAG, "Fetching product details from Firestore for ID: $productId")
         // Get product details from Firestore
         db.collection("products").document(productId).get().addOnSuccessListener { productDoc ->
             if (!productDoc.exists()) {
+                Log.e(TAG, "Product document does not exist in Firestore")
                 Toast.makeText(this, "Product not found", Toast.LENGTH_SHORT).show()
                 addToCartButton.text = "Add to Cart"
                 addToCartButton.isEnabled = true
                 return@addOnSuccessListener
             }
+            Log.d(TAG, "Successfully retrieved product document from Firestore")
 
             val name = productDoc.getString("name") ?: ""
             val price = productDoc.getDouble("price") ?: 0.0
             val imageResId = (productDoc.get("imageResIds") as? List<*>)?.firstOrNull() as? Long ?: 0L
+            
+            Log.d(TAG, "Retrieved product details - Name: $name, Price: $price, ImageResId: $imageResId")
 
-            // Create cart item
+            // Create cart item with default quantity of 1
             val cartItem = CartItem(
                 productId = productId,
                 name = name,
                 price = price,
                 imageResId = imageResId,
-                quantity = quantity,
+                quantity = 1, // Default quantity, can be modified in cart
                 size = selectedSize,
                 color = selectedColor
             )
@@ -232,4 +233,3 @@ class ProductPreviewActivity : AppCompatActivity() {
         }
     }
 }
-
