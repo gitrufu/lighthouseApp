@@ -9,13 +9,29 @@ import android.util.Log
 import com.example.lighthouse.adapters.ImageSliderAdapter
 import com.example.lighthouse.database.DatabaseHelper
 import com.example.lighthouse.databinding.ActivityProductPreviewBinding
-import com.example.lighthouse.models.Product
-
 
 class ProductPreviewActivity : AppCompatActivity() {
-    private companion object {
-        private const val TAG = "ProductPreviewActivity"
+    companion object {
+        private const val TAG = "ProductPreview"
+
+        fun createIntent(
+            context: android.content.Context,
+            productId: String,
+            productName: String,
+            productPrice: Double,
+            productDescription: String?,
+            productImages: ArrayList<String>
+        ): android.content.Intent {
+            return android.content.Intent(context, ProductPreviewActivity::class.java).apply {
+                putExtra("productId", productId)
+                putExtra("productName", productName)
+                putExtra("productPrice", productPrice)
+                putExtra("productDescription", productDescription)
+                putStringArrayListExtra("productImages", productImages)
+            }
+        }
     }
+
     private lateinit var binding: ActivityProductPreviewBinding
     private lateinit var dbHelper: DatabaseHelper
     private lateinit var imageSliderAdapter: ImageSliderAdapter
@@ -30,29 +46,37 @@ class ProductPreviewActivity : AppCompatActivity() {
         dbHelper = DatabaseHelper(this)
         setupImageSlider()
 
-        // Get product from intent
-        val product = intent.getParcelableExtra<Product>("product") ?: run {
-            Log.e(TAG, "Missing product")
+        // Get product details from intent
+        val productId = intent.getStringExtra("productId")
+        val productName = intent.getStringExtra("productName")
+        val productPrice = intent.getDoubleExtra("productPrice", 0.0)
+        val productDescription = intent.getStringExtra("productDescription")
+        val productImages = intent.getStringArrayListExtra("productImages") ?: arrayListOf()
+
+        Log.d(TAG, "Received product details - ID: $productId, Name: $productName, Price: $productPrice")
+
+        if (productId == null || productName == null) {
+            Log.e(TAG, "Missing required product details")
             Toast.makeText(this, "Error: Missing product details", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
 
-        // Convert image resource IDs to URLs or use image URLs if available
-        val productImages = if (product.imageResIds.isNotEmpty()) {
-            product.imageResIds.map { resId ->
-                "android.resource://${packageName}/$resId"
-            }
-        } else {
-            product.imageUrls
+        // Convert drawable resources to proper URLs
+        val processedImages = productImages.map { url ->
+            if (url.startsWith("@drawable/")) {
+                val resourceName = url.substringAfter("@drawable/")
+                val resourceId = resources.getIdentifier(resourceName, "drawable", packageName)
+                if (resourceId != 0) {
+                    "android.resource://$packageName/$resourceId"
+                } else url
+            } else url
         }
 
-        Log.d(TAG, "Received product - ID: ${product.id}, Name: ${product.name}, Price: ${product.price}")
-
-        setupUI(product.name, product.price, product.description, productImages)
+        setupUI(productName, productPrice, productDescription, processedImages)
         setupSizeSelection()
         setupColorSelection()
-        setupAddToCartButton(product.id, product.name, product.price, productImages.firstOrNull())
+        setupAddToCartButton(productId, productName, productPrice, processedImages.firstOrNull())
     }
 
     private fun setupImageSlider() {
@@ -64,12 +88,22 @@ class ProductPreviewActivity : AppCompatActivity() {
 
         // Connect the TabLayout dots with ViewPager
         TabLayoutMediator(binding.imageSliderDots, binding.imageSlider) { _, _ -> }.attach()
+
+        // Set up page change callback for logging
+        binding.imageSlider.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                Log.d(TAG, "Image slider page selected: $position")
+            }
+        })
     }
 
     private fun setupUI(productName: String, productPrice: Double, description: String?, images: List<String>) {
         binding.productName.text = productName
         binding.productPrice.text = String.format("$%.2f", productPrice)
-        binding.productDescription.text = description
+        binding.productDescription.text = description ?: ""
+
+        Log.d(TAG, "Setting up UI with ${images.size} images")
         imageSliderAdapter.setImages(images)
     }
 
@@ -145,6 +179,6 @@ class ProductPreviewActivity : AppCompatActivity() {
                 Log.e(TAG, "Error adding to cart", e)
                 Toast.makeText(this, "Error adding to cart: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-        }
+            }
     }
 }
