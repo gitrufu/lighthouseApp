@@ -50,18 +50,18 @@ class SubcategoriesActivity : AppCompatActivity() {
         val subcategories = when (categoryId) {
             "t_shirt" -> listOf(
                 SubCategory("oversized_tee", "Oversized Tees", "Comfortable oversized t-shirts", "@drawable/tees", categoryId),
-                SubCategory("classic_tee", "Classic Tees", "Timeless classic t-shirts", "@drawable/tees", categoryId),
-                SubCategory("custom_tee", "Custom Design", "Create your own design", "@drawable/tees", categoryId)
+                SubCategory("classic_tee", "Classic Tees", "Timeless classic t-shirts", "@drawable/classic", categoryId),
+                SubCategory("custom_tee", "Custom Design", "Create your own design", "@drawable/custom", categoryId)
             )
             "sweater" -> listOf(
                 SubCategory("pullover", "Pullovers", "Warm pullover sweaters", "@drawable/sweater", categoryId),
-                SubCategory("cardigan", "Cardigans", "Stylish button-up cardigans", "@drawable/sweater", categoryId),
-                SubCategory("hoodie", "Hoodies", "Comfortable hooded sweaters", "@drawable/sweater", categoryId)
+                SubCategory("cardigan", "Cardigans", "Stylish button-up cardigans", "@drawable/oversz", categoryId),
+                SubCategory("hoodie", "Hoodies", "Comfortable hooded sweaters", "@drawable/oversz_hoody", categoryId)
             )
-            "coat" -> listOf(
+            "hoodie" -> listOf(
                 SubCategory("winter_coat", "Winter Coats", "Warm winter coats", "@drawable/hoody", categoryId),
-                SubCategory("trench_coat", "Trench Coats", "Classic trench coats", "@drawable/hoody", categoryId),
-                SubCategory("blazer", "Blazers", "Professional blazers", "@drawable/hoody", categoryId)
+                SubCategory("trench_coat", "Trench Coats", "Classic trench coats", "@drawable/oversz_hoody", categoryId),
+                SubCategory("blazer", "Blazers", "Professional blazers", "@drawable/oversz", categoryId)
             )
             else -> emptyList()
         }

@@ -1,6 +1,6 @@
 package com.example.lighthouse.adapters
 
-import android.view.LayoutInflater
+
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView

@@ -192,35 +192,34 @@ class HomeActivity : AppCompatActivity() {
 
         val images = ArrayList<String>()
         
-        // First add all image URLs
-        images.addAll(product.imageUrls)
-        
-        // Then add all image resource IDs as content URIs
+        // Process drawable resource IDs
         product.imageResIds.forEach { resId ->
-            images.add("android.resource://$packageName/drawable/$resId")
+            Log.d(TAG, "Processing resource ID: $resId")
+            images.add("android.resource://$packageName/$resId")
         }
 
-        // Process any drawable references in imageUrls
-        val processedUrls = product.imageUrls.map { url ->
+        // Process URLs and drawable references
+        product.imageUrls.forEach { url ->
             if (url.startsWith("@drawable/")) {
                 val resourceName = url.substringAfter("@drawable/")
                 val resourceId = resources.getIdentifier(resourceName, "drawable", packageName)
                 if (resourceId != 0) {
-                    "android.resource://$packageName/drawable/$resourceId"
+                    Log.d(TAG, "Found drawable resource: $resourceName (ID: $resourceId)")
+                    images.add("android.resource://$packageName/$resourceId")
                 } else {
                     Log.e(TAG, "Could not find drawable resource: $resourceName")
-                    url
                 }
             } else {
-                url
+                images.add(url)
             }
         }
 
-        // Clear and add processed URLs
-        images.clear()
-        images.addAll(processedUrls)
+        Log.d(TAG, "Final images list: $images")
 
-        Log.d(TAG, "Combined images list: $images")
+        if (images.isEmpty()) {
+            Log.w(TAG, "No images available for product ${product.name}, using default")
+            images.add("android.resource://$packageName/${R.drawable.logo}")
+        }
 
         startActivity(ProductPreviewActivity.createIntent(
             context = this,
