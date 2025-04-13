@@ -186,7 +186,42 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun openProductPreview(product: Product) {
-        val images = ArrayList(product.imageUrls)
+        Log.d(TAG, "Opening product preview for: ${product.name}")
+        Log.d(TAG, "Product imageResIds: ${product.imageResIds}")
+        Log.d(TAG, "Product imageUrls: ${product.imageUrls}")
+
+        val images = ArrayList<String>()
+        
+        // First add all image URLs
+        images.addAll(product.imageUrls)
+        
+        // Then add all image resource IDs as content URIs
+        product.imageResIds.forEach { resId ->
+            images.add("android.resource://$packageName/drawable/$resId")
+        }
+
+        // Process any drawable references in imageUrls
+        val processedUrls = product.imageUrls.map { url ->
+            if (url.startsWith("@drawable/")) {
+                val resourceName = url.substringAfter("@drawable/")
+                val resourceId = resources.getIdentifier(resourceName, "drawable", packageName)
+                if (resourceId != 0) {
+                    "android.resource://$packageName/drawable/$resourceId"
+                } else {
+                    Log.e(TAG, "Could not find drawable resource: $resourceName")
+                    url
+                }
+            } else {
+                url
+            }
+        }
+
+        // Clear and add processed URLs
+        images.clear()
+        images.addAll(processedUrls)
+
+        Log.d(TAG, "Combined images list: $images")
+
         startActivity(ProductPreviewActivity.createIntent(
             context = this,
             productId = product.id,

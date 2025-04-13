@@ -5,7 +5,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 
 fun DocumentSnapshot.toProduct(): Product? {
     return try {
-        val imageResIds = (get("imageResIds") as? List<*>)?.mapNotNull { 
+        val imageResIds = (get("imageResIds") as? List<*>)?.mapNotNull {
             when (it) {
                 is Long -> it.toInt()
                 is Int -> it
@@ -13,12 +13,15 @@ fun DocumentSnapshot.toProduct(): Product? {
             }
         } ?: listOf()
 
+        val imageUrls = (get("imageUrls") as? List<*>)?.mapNotNull { it as? String } ?: listOf()
+
         Product(
             id = id,
             name = getString("name") ?: "",
             price = getDouble("price") ?: 0.0,
             description = getString("description") ?: "",
             imageResIds = imageResIds,
+            imageUrls = imageUrls,
             sizes = get("sizes") as? List<String> ?: listOf(),
             colors = get("colors") as? List<String> ?: listOf(),
             featured = getBoolean("featured") ?: false,
@@ -29,3 +32,4 @@ fun DocumentSnapshot.toProduct(): Product? {
         null
     }
 }
+

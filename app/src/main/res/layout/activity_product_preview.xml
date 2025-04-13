@@ -15,20 +15,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/image_slider"
+            <ImageView
+                android:id="@+id/productImagePager"
                 android:layout_width="match_parent"
-                android:layout_height="400dp" />
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/image_slider_dots"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="-20dp"
-                android:background="@android:color/transparent"
-                app:tabBackground="@drawable/tab_selector"
-                app:tabGravity="center"
-                app:tabIndicatorHeight="0dp" />
+                android:layout_height="400dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/product_image" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -112,10 +104,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        android:backgroundTint="@color/black"
-        android:padding="16dp"
+        android:padding="12dp"
         android:text="@string/add_to_cart"
-        android:textColor="@color/white"
-        app:cornerRadius="8dp" />
+        android:textSize="16sp"
+        app:backgroundTint="@color/primary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

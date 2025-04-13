@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import android.util.Log
-import com.example.lighthouse.adapters.ImageSliderAdapter
+import com.bumptech.glide.Glide
 import com.example.lighthouse.database.DatabaseHelper
 import com.example.lighthouse.databinding.ActivityProductPreviewBinding
 
@@ -34,7 +34,6 @@ class ProductPreviewActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProductPreviewBinding
     private lateinit var dbHelper: DatabaseHelper
-    private lateinit var imageSliderAdapter: ImageSliderAdapter
     private var selectedSize = ""
     private var selectedColor = ""
 
@@ -44,7 +43,6 @@ class ProductPreviewActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         dbHelper = DatabaseHelper(this)
-        setupImageSlider()
 
         // Get product details from intent
         val productId = intent.getStringExtra("productId")
@@ -62,40 +60,10 @@ class ProductPreviewActivity : AppCompatActivity() {
             return
         }
 
-        // Convert drawable resources to proper URLs
-        val processedImages = productImages.map { url ->
-            if (url.startsWith("@drawable/")) {
-                val resourceName = url.substringAfter("@drawable/")
-                val resourceId = resources.getIdentifier(resourceName, "drawable", packageName)
-                if (resourceId != 0) {
-                    "android.resource://$packageName/$resourceId"
-                } else url
-            } else url
-        }
-
-        setupUI(productName, productPrice, productDescription, processedImages)
+        setupUI(productName, productPrice, productDescription, productImages)
         setupSizeSelection()
         setupColorSelection()
-        setupAddToCartButton(productId, productName, productPrice, processedImages.firstOrNull())
-    }
-
-    private fun setupImageSlider() {
-        imageSliderAdapter = ImageSliderAdapter()
-        binding.imageSlider.apply {
-            adapter = imageSliderAdapter
-            orientation = ViewPager2.ORIENTATION_HORIZONTAL
-        }
-
-        // Connect the TabLayout dots with ViewPager
-        TabLayoutMediator(binding.imageSliderDots, binding.imageSlider) { _, _ -> }.attach()
-
-        // Set up page change callback for logging
-        binding.imageSlider.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                Log.d(TAG, "Image slider page selected: $position")
-            }
-        })
+        setupAddToCartButton(productId, productName, productPrice, productImages.firstOrNull())
     }
 
     private fun setupUI(productName: String, productPrice: Double, description: String?, images: List<String>) {
@@ -104,7 +72,21 @@ class ProductPreviewActivity : AppCompatActivity() {
         binding.productDescription.text = description ?: ""
 
         Log.d(TAG, "Setting up UI with ${images.size} images")
-        imageSliderAdapter.setImages(images)
+        if (images.isEmpty()) {
+            Log.w(TAG, "No images provided for product")
+            return
+        }
+
+        // Load the first image
+        val firstImage = images.first()
+        try {
+            Glide.with(this)
+                .load(firstImage)
+                .into(binding.productImagePager)
+            Log.d(TAG, "Successfully loaded first image: $firstImage")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error loading image: ${e.message}", e)
+        }
     }
 
     private fun setupSizeSelection() {
@@ -179,6 +161,6 @@ class ProductPreviewActivity : AppCompatActivity() {
                 Log.e(TAG, "Error adding to cart", e)
                 Toast.makeText(this, "Error adding to cart: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-            }
+        }
     }
 }
