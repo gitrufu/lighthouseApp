@@ -1,233 +1,150 @@
 package com.example.lighthouse
 
-import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Log
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
-import com.example.lighthouse.adapters.ProductImageAdapter
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import androidx.core.content.ContextCompat
-import com.example.lighthouse.database.CartRepository
+import com.google.android.material.tabs.TabLayoutMediator
+import android.util.Log
+import com.example.lighthouse.adapters.ImageSliderAdapter
+import com.example.lighthouse.database.DatabaseHelper
+import com.example.lighthouse.databinding.ActivityProductPreviewBinding
+import com.example.lighthouse.models.Product
+
 
 class ProductPreviewActivity : AppCompatActivity() {
     private companion object {
         private const val TAG = "ProductPreviewActivity"
     }
-
-    private lateinit var viewPager: ViewPager2
-    private lateinit var productNameText: TextView
-    private lateinit var productPriceText: TextView
-    private lateinit var productDescriptionText: TextView
-    private lateinit var sizeChipGroup: ChipGroup
-    private lateinit var colorChipGroup: ChipGroup
-
-    private lateinit var addToCartButton: MaterialButton
-    private lateinit var db: FirebaseFirestore
-    private lateinit var auth: FirebaseAuth
+    private lateinit var binding: ActivityProductPreviewBinding
+    private lateinit var dbHelper: DatabaseHelper
+    private lateinit var imageSliderAdapter: ImageSliderAdapter
+    private var selectedSize = ""
+    private var selectedColor = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_product_preview)
+        binding = ActivityProductPreviewBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Initialize Firebase
-        db = FirebaseFirestore.getInstance()
-        auth = FirebaseAuth.getInstance()
+        dbHelper = DatabaseHelper(this)
+        setupImageSlider()
 
-        // Initialize views
-        viewPager = findViewById(R.id.product_image_pager)
-        productNameText = findViewById(R.id.product_name)
-        productPriceText = findViewById(R.id.product_price)
-        productDescriptionText = findViewById(R.id.product_description)
-        sizeChipGroup = findViewById(R.id.size_chip_group)
-        colorChipGroup = findViewById(R.id.color_chip_group)
-        addToCartButton = findViewById(R.id.add_to_cart_button)
-        // Initialize add to cart button
-        addToCartButton.text = "Add to Cart"
-        addToCartButton.isEnabled = true
-
-        // Get product details from intent
-        val productId = intent.getStringExtra("product_id")
-        if (productId == null) {
-            Log.e(TAG, "No product ID provided")
-            Toast.makeText(this, "Error loading product", Toast.LENGTH_SHORT).show()
+        // Get product from intent
+        val product = intent.getParcelableExtra<Product>("product") ?: run {
+            Log.e(TAG, "Missing product")
+            Toast.makeText(this, "Error: Missing product details", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
 
-        // Load full product details
-        loadProductDetails(productId)
+        // Convert image resource IDs to URLs or use image URLs if available
+        val productImages = if (product.imageResIds.isNotEmpty()) {
+            product.imageResIds.map { resId ->
+                "android.resource://${packageName}/$resId"
+            }
+        } else {
+            product.imageUrls
+        }
 
-        // Set up add to cart button with monochromatic theme
-        setupAddToCartButton(productId)
+        Log.d(TAG, "Received product - ID: ${product.id}, Name: ${product.name}, Price: ${product.price}")
 
+        setupUI(product.name, product.price, product.description, productImages)
+        setupSizeSelection()
+        setupColorSelection()
+        setupAddToCartButton(product.id, product.name, product.price, productImages.firstOrNull())
     }
 
-    private fun loadProductDetails(productId: String) {
-        db.collection("products").document(productId)
-            .get()
-            .addOnSuccessListener { document ->
-                if (!document.exists()) {
-                    Log.e(TAG, "Product not found: $productId")
-                    Toast.makeText(this, "Product not found", Toast.LENGTH_SHORT).show()
-                    finish()
-                    return@addOnSuccessListener
-                }
+    private fun setupImageSlider() {
+        imageSliderAdapter = ImageSliderAdapter()
+        binding.imageSlider.apply {
+            adapter = imageSliderAdapter
+            orientation = ViewPager2.ORIENTATION_HORIZONTAL
+        }
 
-                // Update UI with product details
-                val name = document.getString("name") ?: ""
-                val price = document.getDouble("price") ?: 0.0
-                val description = document.getString("description") ?: ""
-                val imageResIds = (document.get("imageResIds") as? List<*>)?.mapNotNull {
-                    when (it) {
-                        is Long -> it.toInt()
-                        is Int -> it
-                        else -> null
-                    }
-                } ?: listOf()
-                val sizes = (document.get("sizes") as? List<*>)?.mapNotNull { it as? String } ?: listOf()
-                val colors = (document.get("colors") as? List<*>)?.mapNotNull { it as? String } ?: listOf()
-
-                productNameText.text = name
-                productPriceText.text = getString(R.string.price_format, price)
-                productDescriptionText.text = description
-
-                // Set up image slider
-                viewPager.adapter = ProductImageAdapter(imageResIds)
-
-                // Set up size and color selection
-                setupSizeSelection(sizes)
-                setupColorSelection(colors)
-
-                // Set up add to cart button after loading product details
-                setupAddToCartButton(productId)
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Error loading product: ${e.message}")
-                Toast.makeText(this, R.string.error_loading_product, Toast.LENGTH_SHORT).show()
-                finish()
-            }
+        // Connect the TabLayout dots with ViewPager
+        TabLayoutMediator(binding.imageSliderDots, binding.imageSlider) { _, _ -> }.attach()
     }
 
+    private fun setupUI(productName: String, productPrice: Double, description: String?, images: List<String>) {
+        binding.productName.text = productName
+        binding.productPrice.text = String.format("$%.2f", productPrice)
+        binding.productDescription.text = description
+        imageSliderAdapter.setImages(images)
+    }
 
+    private fun setupSizeSelection() {
+        val sizes = listOf("S", "M", "L", "XL")
+        binding.sizeChipGroup.removeAllViews()
+        Log.d(TAG, "Setting up size selection with options: $sizes")
 
-    private fun setupSizeSelection(sizes: List<String>) {
-        sizeChipGroup.removeAllViews()
         sizes.forEach { size ->
-            addChipToGroup(sizeChipGroup, size)
+            val chip = com.google.android.material.chip.Chip(this).apply {
+                text = size
+                isCheckable = true
+                setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) {
+                        selectedSize = size
+                        Log.d(TAG, "Size selected: $size")
+                    }
+                }
+            }
+            binding.sizeChipGroup.addView(chip)
         }
     }
 
-    private fun setupColorSelection(colors: List<String>) {
-        colorChipGroup.removeAllViews()
+    private fun setupColorSelection() {
+        val colors = listOf("Black", "White", "Red", "Blue")
+        binding.colorChipGroup.removeAllViews()
+        Log.d(TAG, "Setting up color selection with options: $colors")
+
         colors.forEach { color ->
-            addChipToGroup(colorChipGroup, color)
-        }
-    }
-
-    private fun addChipToGroup(chipGroup: ChipGroup, text: String) {
-        val chip = Chip(this).apply {
-            this.text = text
-            isCheckable = true
-            chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
-            chipStrokeWidth = resources.displayMetrics.density * 1 // Convert 1dp to pixels
-            chipStrokeColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black))
-            setTextColor(ContextCompat.getColor(context, R.color.black))
-            checkedIcon = null
-        }
-        chipGroup.addView(chip)
-    }
-
-    private fun setupAddToCartButton(productId: String) {
-        addToCartButton.apply {
-            setText(R.string.add_to_cart)
-            isEnabled = true
-            backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black))
-            setTextColor(ContextCompat.getColor(context, R.color.white))
-            setOnClickListener {
-                addToCart(productId)
+            val chip = com.google.android.material.chip.Chip(this).apply {
+                text = color
+                isCheckable = true
+                setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) {
+                        selectedColor = color
+                        Log.d(TAG, "Color selected: $color")
+                    }
+                }
             }
+            binding.colorChipGroup.addView(chip)
         }
     }
 
-    private fun addToCart(productId: String) {
-        Log.d(TAG, "Starting addToCart for product: $productId")
-        // Disable add to cart button to prevent multiple clicks
-        addToCartButton.isEnabled = false
+    private fun setupAddToCartButton(productId: String, productName: String, productPrice: Double, imageUrl: String?) {
+        Log.d(TAG, "Setting up add to cart button for product: $productId")
 
-        val selectedSize = findViewById<Chip>(sizeChipGroup.checkedChipId)?.text?.toString()
-        val selectedColor = findViewById<Chip>(colorChipGroup.checkedChipId)?.text?.toString()
-        
-        Log.d(TAG, "Selected options - Size: $selectedSize, Color: $selectedColor")
+        binding.addToCartButton.setOnClickListener {
+            Log.d(TAG, "Add to cart button clicked")
+            Log.d(TAG, "Current selection - Size: $selectedSize, Color: $selectedColor")
 
-        if (selectedSize == null || selectedColor == null) {
-            Toast.makeText(this, R.string.select_size_color, Toast.LENGTH_SHORT).show()
-            addToCartButton.isEnabled = true
-            return
-        }
-
-        val userId = auth.currentUser?.uid
-        if (userId == null) {
-            Toast.makeText(this, R.string.sign_in_to_add, Toast.LENGTH_SHORT).show()
-            addToCartButton.isEnabled = true
-            return
-        }
-
-        // Show loading state
-        addToCartButton.setText(R.string.adding_to_cart)
-
-        Log.d(TAG, "Fetching product details from Firestore for ID: $productId")
-        // Get product details from Firestore
-        db.collection("products").document(productId).get().addOnSuccessListener { productDoc ->
-            if (!productDoc.exists()) {
-                Log.e(TAG, "Product document does not exist in Firestore")
-                Toast.makeText(this, "Product not found", Toast.LENGTH_SHORT).show()
-                addToCartButton.text = "Add to Cart"
-                addToCartButton.isEnabled = true
-                return@addOnSuccessListener
+            if (selectedSize.isEmpty() || selectedColor.isEmpty()) {
+                Log.w(TAG, "Missing selection - Size: ${selectedSize.isEmpty()}, Color: ${selectedColor.isEmpty()}")
+                Toast.makeText(this, "Please select both size and color", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
-            Log.d(TAG, "Successfully retrieved product document from Firestore")
 
-            val name = productDoc.getString("name") ?: ""
-            val price = productDoc.getDouble("price") ?: 0.0
-            val imageResId = (productDoc.get("imageResIds") as? List<*>)?.firstOrNull() as? Long ?: 0L
-            
-            Log.d(TAG, "Retrieved product details - Name: $name, Price: $price, ImageResId: $imageResId")
+            try {
+                Log.d(TAG, "Adding to cart - Product: $productId, Size: $selectedSize, Color: $selectedColor")
+                dbHelper.addToCart(
+                    productId = productId,
+                    name = productName,
+                    price = productPrice,
+                    size = selectedSize,
+                    color = selectedColor,
+                    quantity = 1,
+                    imageUrl = imageUrl
+                )
 
-            // Create cart item with default quantity of 1
-            val cartItem = CartItem(
-                productId = productId,
-                name = name,
-                price = price,
-                imageResId = imageResId,
-                quantity = 1, // Default quantity, can be modified in cart
-                size = selectedSize,
-                color = selectedColor
-            )
-
-            // Add to local SQLite database
-            val cartRepository = CartRepository(this)
-            val success = cartRepository.addToCart(cartItem)
-
-            if (success) {
+                Log.d(TAG, "Successfully added to cart")
                 Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show()
                 finish()
-            } else {
-                Toast.makeText(this, "Error adding to cart", Toast.LENGTH_SHORT).show()
-                addToCartButton.text = "Add to Cart"
-                addToCartButton.isEnabled = true
+            } catch (e: Exception) {
+                Log.e(TAG, "Error adding to cart", e)
+                Toast.makeText(this, "Error adding to cart: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-        }.addOnFailureListener { e ->
-            Log.e(TAG, "Error getting product details: ${e.message}")
-            Toast.makeText(this, "Error adding to cart", Toast.LENGTH_SHORT).show()
-            addToCartButton.text = "Add to Cart"
-            addToCartButton.isEnabled = true
         }
     }
 }

@@ -110,10 +110,21 @@
                 android:layout_marginBottom="8dp"/>
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/orders_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/my_orders"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/black"
+                android:padding="16dp"/>
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/logout_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Logout"
+                android:layout_marginTop="16dp"
+                android:text="@string/logout"
                 android:textColor="@color/white"
                 android:backgroundTint="@color/black"
                 android:padding="16dp"/>

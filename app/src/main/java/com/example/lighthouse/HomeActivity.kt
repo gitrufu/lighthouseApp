@@ -124,9 +124,10 @@ class HomeActivity : AppCompatActivity() {
                     doc.toProduct()
                 }
                 Log.d(TAG, "Featured products found: ${products.size}")
-                val adapter = ProductAdapter(products) { product ->
-                    openProductPreview(product)
-                }
+                val adapter = ProductAdapter(
+                    onProductClick = { product -> openProductPreview(product) },
+                    products = products
+                )
                 recyclerView.adapter = adapter
             }
             .addOnFailureListener { e ->
@@ -148,9 +149,10 @@ class HomeActivity : AppCompatActivity() {
                     doc.toProduct()
                 }
                 Log.d(TAG, "Suggested products found: ${products.size}")
-                val adapter = ProductAdapter(products) { product ->
-                    openProductPreview(product)
-                }
+                val adapter = ProductAdapter(
+                    onProductClick = { product -> openProductPreview(product) },
+                    products = products
+                )
                 recyclerView.adapter = adapter
             }
             .addOnFailureListener { e ->
@@ -172,9 +174,10 @@ class HomeActivity : AppCompatActivity() {
                     doc.toProduct()
                 }
                 Log.d(TAG, "New arrival products found: ${products.size}")
-                val adapter = ProductAdapter(products) { product ->
-                    openProductPreview(product)
-                }
+                val adapter = ProductAdapter(
+                    onProductClick = { product -> openProductPreview(product) },
+                    products = products
+                )
                 recyclerView.adapter = adapter
             }
             .addOnFailureListener { e ->
@@ -183,7 +186,15 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun openProductPreview(product: Product) {
-        startActivity(ProductDetailActivity.createIntent(this, product))
+        val images = ArrayList(product.imageUrls)
+        startActivity(ProductPreviewActivity.createIntent(
+            context = this,
+            productId = product.id,
+            productName = product.name,
+            productPrice = product.price,
+            productDescription = product.description,
+            productImages = images
+        ))
     }
 
     private fun setupBottomNavigation() {

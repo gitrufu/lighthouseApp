@@ -10,6 +10,16 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class CategoriesActivity : AppCompatActivity() {
 
+    private fun getCategoryId(categoryName: String): String {
+        return when (categoryName) {
+            "T-Shirts" -> "t_shirt"
+            "Hoodies" -> "hoodie"
+            "Sweaters" -> "sweater"
+            "Caps" -> "cap"
+            else -> categoryName.lowercase().replace(" ", "_")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_categories)
@@ -28,7 +38,11 @@ class CategoriesActivity : AppCompatActivity() {
 
         // Set adapter
         val adapter = CategoryAdapter(categories) { category ->
-            // Handle category click
+            // Navigate to subcategories
+            val intent = Intent(this, SubcategoriesActivity::class.java)
+            intent.putExtra("categoryId", getCategoryId(category.name))
+            intent.putExtra("categoryName", category.name)
+            startActivity(intent)
         }
         recyclerView.adapter = adapter
 

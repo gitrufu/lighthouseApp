@@ -2,34 +2,30 @@ package com.example.lighthouse
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.lighthouse.database.CartRepository
-import com.example.lighthouse.CartItem
+import com.example.lighthouse.adapters.CartAdapter
+import com.example.lighthouse.database.DatabaseHelper
+import com.example.lighthouse.models.CartItem
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class CartActivity : AppCompatActivity() {
-    private companion object {
-        private const val TAG = "CartActivity"
-    }
-
     private lateinit var recyclerView: RecyclerView
     private lateinit var totalPriceText: TextView
     private val cartItems = mutableListOf<CartItem>()
     private lateinit var adapter: CartAdapter
-    private lateinit var cartRepository: CartRepository
+    private lateinit var dbHelper: DatabaseHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cart)
 
-        // Initialize cart repository
-        cartRepository = CartRepository(this)
+        // Initialize database helper
+        dbHelper = DatabaseHelper(this)
 
         // Initialize views
         recyclerView = findViewById(R.id.recycler_cart)
@@ -61,28 +57,56 @@ class CartActivity : AppCompatActivity() {
                 Toast.makeText(this, "Your cart is empty", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            // TODO: Implement checkout process
-            Toast.makeText(this, "Proceeding to checkout...", Toast.LENGTH_SHORT).show()
+            try {
+                val orderId = dbHelper.createOrder()
+                Toast.makeText(this, "Order placed successfully! Order ID: $orderId", Toast.LENGTH_LONG).show()
+                finish() // Go back to previous screen
+            } catch (e: Exception) {
+                Toast.makeText(this, "Error placing order: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     private fun loadCartItems() {
         cartItems.clear()
-        cartItems.addAll(cartRepository.getCartItems())
+        val dbItems = dbHelper.getCartItems()
+        cartItems.addAll(dbItems.map { dbItem ->
+            com.example.lighthouse.models.CartItem(
+                productId = dbItem.productId,
+                name = dbItem.name,
+                price = dbItem.price,
+                size = dbItem.size,
+                color = dbItem.color,
+                quantity = dbItem.quantity,
+                imageUrl = dbItem.imageUrl
+            )
+        })
         adapter.submitList(cartItems.toList())
         updateTotalPrice()
     }
 
     private fun updateCartItemQuantity(item: CartItem, newQuantity: Int) {
-        if (cartRepository.updateQuantity(item.productId, item.size, item.color, newQuantity)) {
+        if (newQuantity <= 0) {
+            deleteCartItem(item)
+            return
+        }
+        
+        try {
+            dbHelper.updateCartItemQuantity(
+                productId = item.productId,
+                size = item.size,
+                color = item.color,
+                newQuantity = newQuantity
+            )
             loadCartItems()
-        } else {
-            Toast.makeText(this, "Error updating quantity", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Quantity updated", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error updating quantity: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun deleteCartItem(item: CartItem) {
-        if (cartRepository.removeFromCart(item.productId, item.size, item.color)) {
+        if (dbHelper.removeFromCart(item.productId, item.size, item.color)) {
             loadCartItems()
             Toast.makeText(this, "Item removed from cart", Toast.LENGTH_SHORT).show()
         } else {
@@ -112,19 +136,16 @@ class CartActivity : AppCompatActivity() {
                     finish()
                     true
                 }
-
                 R.id.nav_categories -> {
                     startActivity(Intent(this@CartActivity, CategoriesActivity::class.java))
                     finish()
                     true
                 }
-
                 R.id.nav_settings -> {
                     startActivity(Intent(this@CartActivity, SettingsActivity::class.java))
                     finish()
                     true
                 }
-
                 else -> false
             }
         }

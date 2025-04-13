@@ -2,8 +2,8 @@ package com.example.lighthouse
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.lighthouse.databinding.ActivitySettingsBinding
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -14,23 +14,30 @@ import com.google.firebase.ktx.Firebase
 class SettingsActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+    private lateinit var binding: ActivitySettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Initialize Firebase
         auth = Firebase.auth
         db = Firebase.firestore
 
-        val userName = findViewById<TextView>(R.id.user_name)
-        val userEmail = findViewById<TextView>(R.id.user_email)
-        val logoutButton = findViewById<MaterialButton>(R.id.logout_button)
+        val userName = binding.userName
+        val userEmail = binding.userEmail
+        val logoutButton = binding.logoutButton
+        val ordersButton = binding.ordersButton
 
         // Load user data
         auth.currentUser?.let { user ->
             // Set email immediately since we have it
             userEmail.text = user.email
+
+            ordersButton.setOnClickListener {
+                startActivity(Intent(this, OrdersActivity::class.java))
+            }
 
             // Get additional user data from Firestore
             db.collection("users").document(user.uid)
