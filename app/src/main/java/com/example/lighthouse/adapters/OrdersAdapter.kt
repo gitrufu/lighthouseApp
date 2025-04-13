@@ -33,7 +33,7 @@ class OrdersAdapter : ListAdapter<Order, OrdersAdapter.OrderViewHolder>(OrderDif
                 orderId.text = "Order #${order.id}"
                 orderDate.text = dateFormat.format(Date(order.date))
                 orderStatus.text = order.status.capitalize()
-                orderTotal.text = String.format("$%.2f", order.total)
+                orderTotal.text = String.format("₹%.2f", order.total)
             }
         }
     }

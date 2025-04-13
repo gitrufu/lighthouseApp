@@ -46,7 +46,7 @@ class ProductAdapter(
 
         fun bind(product: Product) {
             binding.productName.text = product.name
-            binding.productPrice.text = String.format("$%.2f", product.price)
+            binding.productPrice.text = String.format("₹%.2f", product.price)
 
             // Load the first image from the product's images
             val imageUrl = when {

@@ -32,9 +32,9 @@ object FirestoreSeeder {
             Product(
                 id = "featured_1",
                 name = "Classic Hoodie",
-                price = 49.99,
+                price = 1000.00,
                 description = "Premium cotton blend hoodie with a modern fit",
-                imageResIds = listOf(R.drawable.product_hoody),
+                imageResIds = listOf(R.drawable.hoody),
                 sizes = listOf("S", "M", "L", "XL"),
                 colors = listOf("Black", "Gray"),
                 featured = true,
@@ -44,7 +44,7 @@ object FirestoreSeeder {
             Product(
                 id = "featured_2",
                 name = "Classic Cap",
-                price = 24.99,
+                price = 250.00,
                 description = "Stylish and comfortable cap for everyday wear",
                 imageResIds = listOf(R.drawable.product_cap),
                 sizes = listOf("One Size"),
@@ -56,7 +56,7 @@ object FirestoreSeeder {
             Product(
                 id = "suggested_1",
                 name = "Bucket Hat",
-                price = 29.99,
+                price = 300.00,
                 description = "Trendy bucket hat perfect for summer",
                 imageResIds = listOf(R.drawable.product_bucket),
                 sizes = listOf("S/M", "L/XL"),
@@ -68,7 +68,7 @@ object FirestoreSeeder {
             Product(
                 id = "suggested_2",
                 name = "Classic Sweater",
-                price = 59.99,
+                price = 800.00,
                 description = "Warm and cozy sweater for cold days",
                 imageResIds = listOf(R.drawable.product_sweater),
                 sizes = listOf("S", "M", "L", "XL"),
@@ -80,7 +80,7 @@ object FirestoreSeeder {
             Product(
                 id = "new_1",
                 name = "Essential T-Shirt",
-                price = 24.99,
+                price = 500.00,
                 description = "Premium cotton t-shirt with perfect fit",
                 imageResIds = listOf(R.drawable.product_tees),
                 sizes = listOf("S", "M", "L", "XL", "XXL"),

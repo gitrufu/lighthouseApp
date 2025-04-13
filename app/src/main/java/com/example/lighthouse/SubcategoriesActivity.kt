@@ -59,9 +59,12 @@ class SubcategoriesActivity : AppCompatActivity() {
                 SubCategory("hoodie", "Hoodies", "Comfortable hooded sweaters", "@drawable/oversz_hoody", categoryId)
             )
             "hoodie" -> listOf(
-                SubCategory("winter_coat", "Winter Coats", "Warm winter coats", "@drawable/hoody", categoryId),
-                SubCategory("trench_coat", "Trench Coats", "Classic trench coats", "@drawable/oversz_hoody", categoryId),
-                SubCategory("blazer", "Blazers", "Professional blazers", "@drawable/oversz", categoryId)
+                SubCategory("classic_hoody", "Classic Hoody", "Warm winter coats", "@drawable/hoody", categoryId),
+                SubCategory("custom_hoody", "Custom Design Hoody", "Classic trench coats", "@drawable/oversz_hoody", categoryId),
+            )
+            "cap" -> listOf(
+                SubCategory("cap", "Cap", "Summer Cap", "@drawable/cap", categoryId),
+                SubCategory("bucket_hat", "Bucket Hat", "Summer hats", "@drawable/bucket", categoryId),
             )
             else -> emptyList()
         }
@@ -90,13 +93,17 @@ class SubcategoriesActivity : AppCompatActivity() {
                 else -> subcategory.name
             },
             price = when (subcategory.id) {
-                "oversized_tee" -> 29.99
-                "classic_tee" -> 24.99
-                "custom_tee" -> 39.99
-                "pullover" -> 49.99
-                "cardigan" -> 59.99
-                "hoodie" -> 44.99
-                else -> 29.99
+                "oversized_tee" -> 500.00
+                "classic_tee" -> 500.00
+                "custom_tee" -> 500.00
+                "pullover" -> 800.00
+                "cardigan" -> 800.00
+                "hoodie" -> 1000.00
+                "classic_hoody" -> 1000.00
+                "custom_hoody" -> 1000.00
+                "cap" -> 250.00
+                "bucket_hat" -> 300.00
+                else -> 0.00
             },
             description = subcategory.description ?: when (subcategory.id) {
                 "oversized_tee" -> "Comfortable oversized t-shirt"
@@ -110,7 +117,11 @@ class SubcategoriesActivity : AppCompatActivity() {
             imageResIds = listOf(when (subcategory.id) {
                 "oversized_tee", "classic_tee", "custom_tee" -> R.drawable.oversz
                 "pullover", "cardigan" -> R.drawable.sweater
-                "hoodie" -> R.drawable.classic_hoody
+                "hoodie" -> R.drawable.hoody
+                "classic_hoody" -> R.drawable.hoody
+                "custom_hoody" -> R.drawable.hoody
+                "bucket_hat" -> R.drawable.bucket
+                "cap" -> R.drawable.cap
                 else -> R.drawable.logo
             }),
             sizes = when (subcategory.id) {

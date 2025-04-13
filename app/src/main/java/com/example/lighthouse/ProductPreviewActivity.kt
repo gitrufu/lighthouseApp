@@ -68,7 +68,7 @@ class ProductPreviewActivity : AppCompatActivity() {
 
     private fun setupUI(productName: String, productPrice: Double, description: String?, images: List<String>) {
         binding.productName.text = productName
-        binding.productPrice.text = String.format("$%.2f", productPrice)
+        binding.productPrice.text = String.format("₹%.2f", productPrice)
         binding.productDescription.text = description ?: ""
 
         Log.d(TAG, "Setting up UI with ${images.size} images")

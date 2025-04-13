@@ -32,7 +32,7 @@ class CartAdapter(
         fun bind(item: CartItem) {
             binding.apply {
                 cartItemName.text = item.name
-                cartItemPrice.text = String.format("$%.2f", item.price)
+                cartItemPrice.text = String.format("₹%.2f", item.price)
 
                 // Load image using Glide
                 // Load image using Glide
